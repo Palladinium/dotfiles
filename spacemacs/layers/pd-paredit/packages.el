@@ -62,7 +62,9 @@ Each entry is either:
         recipe.  See: https://github.com/milkypostman/melpa#recipe-format")
 
 (defun pd-paredit/init-paredit ()
-  (use-package paredit))
+  (use-package paredit
+               :config
+               (spacemacs|diminish paredit-mode "\u24C5" "p")))
 
 (defun pd-paredit/init-evil-paredit ()
   (use-package evil-paredit
