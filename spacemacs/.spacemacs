@@ -54,6 +54,7 @@ values."
      colors
 
      pd-paredit
+     pd-whitespace-cleanup
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
@@ -61,7 +62,6 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
-                                      whitespace-cleanup-mode
                                       extempore-mode
                                       )
 
@@ -294,12 +294,6 @@ you should place you code here."
   ;; Also in visual mode
   (define-key evil-visual-state-map "j" #'evil-next-visual-line)
   (define-key evil-visual-state-map "k" #'evil-previous-visual-line)
-
-  ;; Whitespace cleanup mode
-  (add-hook 'prog-mode-hook #'whitespace-cleanup-mode)
-
-  (spacemacs/set-leader-keys "ow" #'whitespace-cleanup)
-  (spacemacs/set-leader-keys "oW" #'whitespace-cleanup-mode)
 
   ;; Autosaving options
   (defvar backup-dir "/tmp/emacs-backups")
