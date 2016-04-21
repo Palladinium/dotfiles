@@ -67,6 +67,7 @@ values."
 
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '(
+                                    ;; Doesn't work - smartparens is loaded and enabled when Lisp mode is entered
                                     ;smartparens
                                     )
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
