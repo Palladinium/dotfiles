@@ -18,32 +18,21 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
-     ;; ----------------------------------------------------------------
-     ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-     ;; <M-m f e R> (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
+     ;; General layers
      (auto-completion :variables
                       auto-completion-enable-help-tooltip t
                       auto-completion-return-key-behavior nil
+                      auto-completion-tab-key-behavior nil
                       auto-completion-complete-with-key-sequence "jk"
-                      auto-completion-complete-with-key-sequence-delay 0.1)
-     better-defaults
+                      auto-completion-complete-with-key-sequence-delay 0.2)
      semantic
-     cscope
-
-     emacs-lisp
-     common-lisp
-     (c-c++ :variables
-            c-c++-enable-clang-support t)
-     javascript
-     ruby
-     lua
-     latex
-     markdown
-
+     deft
+     ;colors
+     (ibuffer :variables
+              ibuffer-group-buffers-by 'projects)
+     search-engine
+     themes-megapack
      vinegar
-     git
      org
      (shell :variables
             shell-default-height 30
@@ -51,11 +40,35 @@ values."
      (spell-checking :variables
                      spell-checking-enable-by-default nil)
      syntax-checking
-     colors
 
+     ;; Frameworks
+     ruby-on-rails
+
+     ;; Programming languages
+     emacs-lisp
+     common-lisp
+     (c-c++ :variables
+            c-c++-enable-clang-support t)
+     cscope
+     java
+     javascript
+     python
+     ruby
+     lua
+     latex
+     markdown
+
+     ;; Source control
+     git
+
+     ;; Tools
+     vagrant
+
+     vim-empty-lines
+
+     ;; My own layers
      pd-paredit
      pd-whitespace-cleanup
-     ;; version-control
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -128,11 +141,11 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Anonymous Pro"
+                               :size 14
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1)
+                               :powerline-scale 1.15)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The leader key accessible in `emacs state' and `insert state'
@@ -191,7 +204,7 @@ values."
    dotspacemacs-enable-paste-micro-state nil
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
-   dotspacemacs-which-key-delay 0.1
+   dotspacemacs-which-key-delay 0.2
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
@@ -272,10 +285,20 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place you code here."
 
+  (setq-default
+   flycheck-cppcheck-checks '("style" "missingInclude")
+   ;flycheck-cppcheck-inconclusive t
+   ;flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)
+   )
+
+  ;; Auto-insert for C/C++ files
+  (add-hook 'find-file-hook #'auto-insert)
+
+
   ;; Replace smartparens with paredit
   (spacemacs/toggle-smartparens-globally-off)
   ;; Sometimes it turns on anyways, so let's turn it back off
-  (add-hook 'smartparens-enabled-hook #'spacemacs/toggle-smartparens-globally-off)
+  (add-hook 'smartparens-enabled-hook #'spacemacs/toggle-smartparens-off)
 
   (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
   (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
@@ -283,10 +306,18 @@ you should place you code here."
   (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
   (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
   (add-hook 'extempore-mode-hook        #'enable-paredit-mode)
-  (add-hook 'slime-repl-mode-hook       #'enable-paredit-mode)
+  ;(add-hook 'slime-repl-mode-hook       #'enable-paredit-mode)
 
   ;; Rainbow delimiters in SLIME
   (add-hook 'slime-repl-mode-hook #'rainbow-delimiters-mode)
+
+  ;; Fix completion mode keybindings in SLIME mode
+  (with-eval-after-load 'slime
+    (define-key slime-mode-map (kbd "<tab>") nil)
+    (define-key slime-repl-mode-map (kbd "<tab>") nil)
+    (define-key slime-target-buffer-fuzzy-completions-map [remap evil-force-normal-state] 'slime-fuzzy-abort)
+    (define-key slime-target-buffer-fuzzy-completions-map [remap evil-normal-state] 'slime-fuzzy-abort)
+    )
 
   ;; Make evil-mode up/down operate in screen lines instead of logical lines
   (define-key evil-motion-state-map "j" #'evil-next-visual-line)
@@ -324,9 +355,12 @@ you should place you code here."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mouse-wheel-scroll-amount (quote (1 ((shift) . 5) ((control)))))
+ '(projectile-enable-caching t)
+ '(projectile-global-mode t)
  '(projectile-project-root-files
    (quote
-    ("rebar.config" "project.clj" "build.boot" "SConstruct" "pom.xml" "build.sbt" "gradlew" "build.gradle" "Gemfile" "requirements.txt" "setup.py" "tox.ini" "package.json" "gulpfile.js" "Gruntfile.js" "bower.json" "composer.json" "Cargo.toml" "mix.exs" "stack.yaml" "TAGS" "GTAGS" "package.lisp"))))
+    ("rebar.config" "project.clj" "build.boot" "SConstruct" "pom.xml" "build.sbt" "gradlew" "build.gradle" "Gemfile" "requirements.txt" "setup.py" "tox.ini" "package.json" "gulpfile.js" "Gruntfile.js" "bower.json" "composer.json" "Cargo.toml" "mix.exs" "stack.yaml" "TAGS" "GTAGS" "package.lisp")))
+ '(projectile-switch-project-action (quote helm-projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
