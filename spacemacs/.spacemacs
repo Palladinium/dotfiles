@@ -42,7 +42,7 @@ values."
      syntax-checking
 
      ;; Frameworks
-     ruby-on-rails
+     ;; ruby-on-rails
 
      ;; Programming languages
      emacs-lisp
@@ -50,8 +50,9 @@ values."
      (c-c++ :variables
             c-c++-enable-clang-support t)
      cscope
-     java
-     javascript
+     ;; csharp
+     ;; java
+     ;; javascript
      python
      ruby
      lua
@@ -288,12 +289,14 @@ you should place you code here."
   (setq-default
    flycheck-cppcheck-checks '("style" "missingInclude")
    ;flycheck-cppcheck-inconclusive t
-   ;flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)
+   ;flycheck-disabled-checkers '(c/c++-clang)
    )
+
+  ;; C# completion
+  (setq-default omnisharp-server-executable-path "/opt/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
 
   ;; Auto-insert for C/C++ files
   (add-hook 'find-file-hook #'auto-insert)
-
 
   ;; Replace smartparens with paredit
   (spacemacs/toggle-smartparens-globally-off)
@@ -306,10 +309,21 @@ you should place you code here."
   (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
   (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
   (add-hook 'extempore-mode-hook        #'enable-paredit-mode)
-  ;(add-hook 'slime-repl-mode-hook       #'enable-paredit-mode)
+  (add-hook 'slime-repl-mode-hook       #'enable-paredit-mode)
 
   ;; Rainbow delimiters in SLIME
   (add-hook 'slime-repl-mode-hook #'rainbow-delimiters-mode)
+
+  (defun slime-repl-return-fixed ()
+    (interactive)
+    (with-demoted-errors "%S" (scroll-down 2))
+    (slime-repl-return))
+
+  (defun slime-repl-return-if-eob ()
+    (interactive)
+    (if (eobp)
+        (slime-repl-return-fixed)
+      (newline-and-indent)))
 
   ;; Fix completion mode keybindings in SLIME mode
   (with-eval-after-load 'slime
@@ -317,6 +331,11 @@ you should place you code here."
     (define-key slime-repl-mode-map (kbd "<tab>") nil)
     (define-key slime-target-buffer-fuzzy-completions-map [remap evil-force-normal-state] 'slime-fuzzy-abort)
     (define-key slime-target-buffer-fuzzy-completions-map [remap evil-normal-state] 'slime-fuzzy-abort)
+
+    (define-key slime-mode-map (kbd "C-<return>") #'slime-repl-return-fixed)
+    (define-key slime-repl-mode-map (kbd "C-<return>") #'slime-repl-return-fixed)
+    (define-key slime-mode-map (kbd "<return>") #'slime-repl-return-if-eob)
+    (define-key slime-repl-mode-map (kbd "<return>") #'slime-repl-return-if-eob)
     )
 
   ;; Make evil-mode up/down operate in screen lines instead of logical lines
@@ -355,12 +374,15 @@ you should place you code here."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mouse-wheel-scroll-amount (quote (1 ((shift) . 5) ((control)))))
+ '(package-selected-packages
+   (quote
+    (slime-company minitest hide-comnt omnisharp csharp-mode yapfify uuidgen py-isort org-projectile org-download livid-mode skewer-mode simple-httpd live-py-mode link-hint git-link flyspell-correct-helm flyspell-correct eyebrowse evil-visual-mark-mode evil-unimpaired evil-ediff eshell-z dumb-jump darkokai-theme company-emacs-eclim common-lisp-snippets column-enforce-mode zonokai-theme zenburn-theme zen-and-art-theme xterm-color ws-butler window-numbering whitespace-cleanup-mode which-key web-beautify volatile-highlights vagrant-tramp vagrant use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme toc-org tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stickyfunc-enhance stekene-theme srefactor spacemacs-theme spaceline spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smooth-scrolling smeargle slime shell-pop seti-theme rvm ruby-tools ruby-test-mode rubocop rspec-mode robe reverse-theme restart-emacs rbenv rainbow-delimiters railscasts-theme quelpa pyvenv pytest pyenv-mode py-yapf purple-haze-theme projectile-rails professional-theme popwin planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persp-mode pcre2el pastels-on-dark-theme paradox page-break-lines orgit organic-green-theme org-repo-todo org-present org-pomodoro org-plus-contrib org-bullets open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme neotree naquadah-theme mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-gitflow lush-theme lua-mode lorem-ipsum linum-relative light-soap-theme leuven-theme json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme inkpot-theme info+ indent-guide ido-vertical-mode ibuffer-projectile hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-flyspell helm-flx helm-descbinds helm-cscope helm-company helm-c-yasnippet helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger gh-md gandalf-theme flycheck-pos-tip flx-ido flatui-theme flatland-theme firebelly-theme fill-column-indicator feature-mode farmhouse-theme fancy-battery extempore-mode expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-paredit evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-args evil-anzu eval-sexp-fu espresso-theme eshell-prompt-extras esh-help engine-mode elisp-slime-nav eclim dracula-theme django-theme disaster deft define-word darktooth-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme company-tern company-statistics company-quickhelp company-c-headers company-auctex company-anaconda colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmake-mode clues-theme clean-aindent-mode clang-format chruby cherry-blossom-theme busybee-theme bundler buffer-move bubbleberry-theme bracketed-paste birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile auctex-latexmk apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(projectile-enable-caching t)
  '(projectile-global-mode t)
  '(projectile-project-root-files
    (quote
     ("rebar.config" "project.clj" "build.boot" "SConstruct" "pom.xml" "build.sbt" "gradlew" "build.gradle" "Gemfile" "requirements.txt" "setup.py" "tox.ini" "package.json" "gulpfile.js" "Gruntfile.js" "bower.json" "composer.json" "Cargo.toml" "mix.exs" "stack.yaml" "TAGS" "GTAGS" "package.lisp")))
- '(projectile-switch-project-action (quote helm-projectile)))
+ '(projectile-switch-project-action (quote helm-projectile) t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
